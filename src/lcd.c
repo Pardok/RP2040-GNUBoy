@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "refresh.h"
-#include "palette.h"
+// #include "palette.h"
 #include "defs.h"
 #include "regs.h"
 #include "hw.h"
@@ -42,7 +42,8 @@ struct scan scan;
 #define WT (scan.wt)
 #define WV (scan.wv)
 
-byte patpix[4096][8][8];
+// byte patpix[4096][8][8];
+static byte pix[8];
 byte patdirty[1024];
 byte anydirty;
 
@@ -92,44 +93,70 @@ static byte *vdest;
 #define MEMCPY8(d, s) memcpy((d), (s), 8)
 #endif
 
+__attribute__((optimize("unroll-loops")))
+static const byte* get_patpix(int i, int x)
+{
+	const int index = i & 0x3ff; // 1024 entries
+	const int rotation = i >> 10; // / 1024;
+
+	int j;
+	int a, c;
+	const byte* const vram = lcd.vbank[0];
+
+	switch (rotation)
+	{
+		case 0:
+			a = ((index << 4) | (x << 1));
+
+			for (byte k = 0; k < 8; k++)
+			{
+				c = vram[a] & (1 << k) ? 1 : 0;
+				c |= vram[a+1] & (1 << k) ? 2 : 0;
+				pix[7 - k] = c;
+			}
+			break;
+
+		case 1:
+			a = ((index << 4) | (x << 1));
+
+			for (byte k = 0; k < 8; k++)
+			{
+				c = vram[a] & (1 << k) ? 1 : 0;
+				c |= vram[a+1] & (1 << k) ? 2 : 0;
+				pix[k] = c;
+			}
+			break;
+
+		case 2:
+			j = 7 - x;
+			a = ((index << 4) | (j << 1));
+
+			for (byte k = 0; k < 8; k++)
+			{
+				c = vram[a] & (1 << k) ? 1 : 0;
+				c |= vram[a+1] & (1 << k) ? 2 : 0;
+				pix[7 - k] = c;
+			}
+			break;
+
+		case 3:
+			j = 7 - x;
+			a = ((index << 4) | (j << 1));
+
+			for (byte k = 0; k < 8; k++)
+			{
+				c = vram[a] & (1 << k) ? 1 : 0;
+				c |= vram[a+1] & (1 << k) ? 2 : 0;
+				pix[k] = c;
+			}
+			break;
+	}
+
+	return pix;
+}
+
 void updatepatpix()
 {
-	int i, j, k;
-	int a, c;
-	byte *vram = lcd.vbank[0];
-	
-	if (!anydirty) return;
-	for (i = 0; i < 1024; i++)
-	{
-		if (i == 384) i = 512;
-		if (i == 896) break;
-		if (!patdirty[i]) continue;
-		patdirty[i] = 0;
-		for (j = 0; j < 8; j++)
-		{
-			a = ((i<<4) | (j<<1));
-			for (k = 0; k < 8; k++)
-			{
-				c = vram[a] & (1<<k) ? 1 : 0;
-				c |= vram[a+1] & (1<<k) ? 2 : 0;
-				patpix[i+1024][j][k] = c;
-			}
-			for (k = 0; k < 8; k++)
-				patpix[i][j][k] =
-					patpix[i+1024][j][7-k];
-		}
-		for (j = 0; j < 8; j++)
-		{
-			for (k = 0; k < 8; k++)
-			{
-				patpix[i+2048][j][k] =
-					patpix[i][7-j][k];
-				patpix[i+3072][j][k] =
-					patpix[i+1024][7-j][k];
-			}
-		}
-	}
-	anydirty = 0;
 }
 
 
@@ -242,19 +269,19 @@ void bg_scan()
 	tile = BG;
 	dest = BUF;
 	
-	src = patpix[*(tile++)][V] + U;
+	src = get_patpix(*(tile++), V) + U;
 	memcpy(dest, src, 8-U);
 	dest += 8-U;
 	cnt -= 8-U;
 	if (cnt <= 0) return;
 	while (cnt >= 8)
 	{
-		src = patpix[*(tile++)][V];
+		src = get_patpix(*(tile++), V);
 		MEMCPY8(dest, src);
 		dest += 8;
 		cnt -= 8;
 	}
-	src = patpix[*tile][V];
+	src = get_patpix(*tile, V);
 	while (cnt--)
 		*(dest++) = *(src++);
 }
@@ -272,12 +299,19 @@ void wnd_scan()
 	
 	while (cnt >= 8)
 	{
-		src = patpix[*(tile++)][WV];
+		src = get_patpix(*(tile++), WV);
+#if 0
 		MEMCPY8(dest, src);
+#else
+		int* tmpDest =(int*)dest;
+		int* tmpSrc = (int*)src;
+		tmpDest[0] = tmpSrc[0];
+		tmpDest[1] = tmpSrc[1];
+#endif
 		dest += 8;
 		cnt -= 8;
 	}
-	src = patpix[*tile][WV];
+	src = get_patpix(*tile, WV);
 	while (cnt--)
 		*(dest++) = *(src++);
 }
@@ -361,19 +395,19 @@ void bg_scan_color()
 	tile = BG;
 	dest = BUF;
 	
-	src = patpix[*(tile++)][V] + U;
+	src = get_patpix(*(tile++), V) + U;
 	blendcpy(dest, src, *(tile++), 8-U);
 	dest += 8-U;
 	cnt -= 8-U;
 	if (cnt <= 0) return;
 	while (cnt >= 8)
 	{
-		src = patpix[*(tile++)][V];
+		src = get_patpix(*(tile++), V);
 		blendcpy(dest, src, *(tile++), 8);
 		dest += 8;
 		cnt -= 8;
 	}
-	src = patpix[*(tile++)][V];
+	src = get_patpix(*(tile++), V);
 	blendcpy(dest, src, *(tile++), cnt);
 }
 #endif
@@ -391,12 +425,12 @@ void wnd_scan_color()
 	
 	while (cnt >= 8)
 	{
-		src = patpix[*(tile++)][WV];
+		src = get_patpix(*(tile++), WV);
 		blendcpy(dest, src, *(tile++), 8);
 		dest += 8;
 		cnt -= 8;
 	}
-	src = patpix[*(tile++)][WV];
+	src = get_patpix(*(tile++), WV);
 	blendcpy(dest, src, *(tile++), cnt);
 }
 
@@ -468,7 +502,9 @@ void spr_enum()
 			}
 			if (o->flags & 0x40) pat ^= 1;
 		}
-		VS[NS].buf = patpix[pat][v];
+		VS[NS].pat = pat;
+		VS[NS].v = v;
+
 		if (++NS == 10) break;
 	}
 	if (!sprsort || hw.cgb) return;
@@ -506,18 +542,20 @@ void spr_scan()
 	
 	for (; ns; ns--, vs--)
 	{
+		byte* sbuf = get_patpix(vs->pat, vs->v);
+
 		x = vs->x;
 		if (x >= 160) continue;
 		if (x <= -8) continue;
 		if (x < 0)
 		{
-			src = vs->buf - x;
+			src = sbuf - x;
 			dest = BUF;
 			i = 8 + x;
 		}
 		else
 		{
-			src = vs->buf;
+			src = sbuf;
 			dest = BUF + x;
 			if (x > 152) i = 160 - x;
 			else i = 8;
@@ -556,30 +594,32 @@ void spr_scan()
 
 void lcd_begin()
 {
-	if (fb.indexed)
-	{
-		if (rgb332) pal_set332();
-		else pal_expire();
-	}
+	// if (fb.indexed)
+	// {
+	// 	if (rgb332) pal_set332();
+	// 	else pal_expire();
+	// }
 	while (scale * 160 > fb.w || scale * 144 > fb.h) scale--;
+#ifdef PICO
+	vdest = fb.ptr;
+#else
 	vdest = fb.ptr + ((fb.w*fb.pelsize)>>1)
 		- (80*fb.pelsize) * scale
 		+ ((fb.h>>1) - 72*scale) * fb.pitch;
+#endif
 	WY = R_WY;
 }
 
 void lcd_refreshline()
 {
 	int i;
-	byte scalebuf[160*4*4], *dest;
+	byte *dest;
 	static int WL = 0;
 
 	if (!fb.enabled) return;
 	
 	if (!(R_LCDC & 0x80))
 		return; /* should not happen... */
-	
-	updatepatpix();
 
 	L = R_LY;
 	X = R_SCX;
@@ -622,13 +662,13 @@ void lcd_refreshline()
 	}
 	spr_scan();
 
-	if (fb.dirty) memset(fb.ptr, 0, fb.pitch * fb.h);
-	fb.dirty = 0;
-	if (density > scale) density = scale;
-	if (scale == 1) density = 1;
+	density = 1;
 
-	dest = (density != 1) ? scalebuf : vdest;
+	dest = vdest;
 	
+#ifdef PICO
+	refresh_2(dest, BUF, PAL2, 160);
+#else
 	switch (scale)
 	{
 	case 0:
@@ -703,17 +743,9 @@ void lcd_refreshline()
 	default:
 		break;
 	}
+#endif
 
-	if (density != 1)
-	{
-		for (i = 0; i < scale; i++)
-		{
-			if ((i < density) || ((density <= 0) && !(i&1)))
-				memcpy(vdest, scalebuf, 160 * fb.pelsize * scale);
-			vdest += fb.pitch;
-		}
-	}
-	else vdest += fb.pitch * scale;
+	vdest += fb.pitch;
 }
 
 
@@ -759,15 +791,15 @@ static void updatepalette(int i)
 		return;
 	}
 	
-	if (fb.indexed)
-	{
-		pal_release(PAL1[i]);
-		c = pal_getcolor(c, r, g, b);
-		PAL1[i] = c;
-		PAL2[i] = (c<<8) | c;
-		PAL4[i] = (c<<24) | (c<<16) | (c<<8) | c;
-		return;
-	}
+	// if (fb.indexed)
+	// {
+	// 	pal_release(PAL1[i]);
+	// 	c = pal_getcolor(c, r, g, b);
+	// 	PAL1[i] = c;
+	// 	PAL2[i] = (c<<8) | c;
+	// 	PAL4[i] = (c<<24) | (c<<16) | (c<<8) | c;
+	// 	return;
+	// }
 
 	r = (r >> fb.cc[0].r) << fb.cc[0].l;
 	g = (g >> fb.cc[1].r) << fb.cc[1].l;
@@ -831,8 +863,8 @@ void vram_write(int a, byte b)
 
 void vram_dirty()
 {
-	anydirty = 1;
-	memset(patdirty, 1, sizeof patdirty);
+	// anydirty = 1;
+	// memset(patdirty, 1, sizeof patdirty);
 }
 
 void pal_dirty()

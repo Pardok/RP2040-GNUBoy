@@ -15,6 +15,7 @@ config.*
 gnuboy.rc
 .idea
 *.bin
+/assets
 build/*
 saves/*
 cmake-*

@@ -18,6 +18,11 @@
 
 #include "Version"
 
+#ifdef PICO
+#include "hardware/vreg.h"
+#include "pico/binary_info.h"
+#include "pico/stdlib.h"
+#endif
 
 static char *defaultconfig[] =
 {
@@ -213,128 +218,46 @@ static char *base(char *s)
 	return s;
 }
 
+#ifdef PICO
+#ifndef OVERCLOCK_250
+#define OVERCLOCK_250 1
+#endif
+#endif
 
-int main(int argc, char *argv[])
+// Pico version
+int main()
 {
 	int i;
-	char *opt, *arg, *cmd, *s, *rom = 0;
-	char* link = "\0";
+	char *s = 0;
 
-	/* Avoid initializing video if we don't have to */
-	for (i = 1; i < argc; i++)
-	{
-		if (!strcmp(argv[i], "--help"))
-			help(base(argv[0]));
-		else if (!strcmp(argv[i], "--version"))
-			version(base(argv[0]));
-		else if (!strcmp(argv[i], "--copying"))
-			copying();
-		else if (!strcmp(argv[i], "--bind")) i += 2;
-		else if (!strcmp(argv[i], "--source")) i++;
-		else if (!strcmp(argv[i], "--showvars"))
-		{
-			show_exports();
-			exit(0);
-		}
-		else if (argv[i][0] == '-' && argv[i][1] == '-');
-		else if (argv[i][0] == '-' && argv[i][1]);
-		else rom = argv[i];
-	}
-	
-	if (!rom) usage(base(argv[0]));
+#ifdef PICO
+	#if OVERCLOCK_250
+	// Apply a modest overvolt, default is 1.10v.
+	// this is required for a stable 250MHz on some RP2040s
+	vreg_set_voltage(VREG_VOLTAGE_1_20);
+	sleep_ms(10);
+	set_sys_clock_khz(250000, 0);
+	#endif
+    stdio_init_all();
+#endif
 
-	/* If we have special perms, drop them ASAP! */
 	vid_preinit();
 
 	init_exports();
 
-	s = strdup(argv[0]);
+	s = "./";
 	sys_sanitize(s);
 	sys_initpath(s);
 
 	for (i = 0; defaultconfig[i]; i++)
 		rc_command(defaultconfig[i]);
 
-	cmd = malloc(strlen(rom) + 11);
-	sprintf(cmd, "source %s", rom);
-	s = strchr(cmd, '.');
-	if (s) *s = 0;
-	strcat(cmd, ".rc");
-	rc_command(cmd);
-
-	for (i = 1; i < argc; i++)
-	{
-		if (!strcmp(argv[i], "--bind"))
-		{
-			if (i + 2 >= argc) die("missing arguments to bind\n");
-			cmd = malloc(strlen(argv[i+1]) + strlen(argv[i+2]) + 9);
-			sprintf(cmd, "bind %s \"%s\"", argv[i+1], argv[i+2]);
-			rc_command(cmd);
-			free(cmd);
-			i += 2;
-		}
-		else if (!strcmp(argv[i], "--source"))
-		{
-			if (i + 1 >= argc) die("missing argument to source\n");
-			cmd = malloc(strlen(argv[i+1]) + 6);
-			sprintf(cmd, "source %s", argv[++i]);
-			rc_command(cmd);
-			free(cmd);
-		}
-		else if (!strncmp(argv[i], "--no-", 5))
-		{
-			opt = strdup(argv[i]+5);
-			while ((s = strchr(opt, '-'))) *s = '_';
-			cmd = malloc(strlen(opt) + 7);
-			sprintf(cmd, "set %s 0", opt);
-			rc_command(cmd);
-			free(cmd);
-			free(opt);
-		}
-		else if (!strncmp(argv[i], "--link", 6))
-		{
-			if (i + 1 >= argc) die("missing argument to link\n");
-			link = strdup(argv[++i]);
-		}
-		else if (argv[i][0] == '-' && argv[i][1] == '-')
-		{
-			opt = strdup(argv[i]+2);
-			if ((s = strchr(opt, '=')))
-			{
-				*s = 0;
-				arg = s+1;
-			}
-			else arg = "1";
-			while ((s = strchr(opt, '-'))) *s = '_';
-			while ((s = strchr(arg, ','))) *s = ' ';
-			
-			cmd = malloc(strlen(opt) + strlen(arg) + 6);
-			sprintf(cmd, "set %s %s", opt, arg);
-			
-			rc_command(cmd);
-			free(cmd);
-			free(opt);
-		}
-		/* short options not yet implemented */
-		else if (argv[i][0] == '-' && argv[i][1]);
-	}
-
-	/* FIXME - make interface modules responsible for atexit() */
 	atexit(shutdown);
 	catch_signals();
 
-	if (!io_setup(link))
-	{
-		printf("WARNING: Link mode not supported\n");
-	}
-
 	vid_init();
 	pcm_init();
-
-	rom = strdup(rom);
-	sys_sanitize(rom);
-	
-	loader_init(rom);
+	loader_init();
 	
 	emu_reset();
 	emu_run();
@@ -342,14 +265,3 @@ int main(int argc, char *argv[])
 	/* never reached */
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-

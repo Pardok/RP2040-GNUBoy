@@ -7,9 +7,11 @@
 
 struct vissprite
 {
-	byte *buf;
-	int x;
-	byte pal, pri, pad[6];
+	short pat;
+	short x;
+	short v;
+	byte pal;
+	byte pri;
 };
 
 struct scan

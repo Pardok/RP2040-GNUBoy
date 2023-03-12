@@ -68,9 +68,11 @@ static int cmd_unbindall()
 
 static int cmd_source(int argc, char **argv)
 {
-	if (argc < 2)
-		return -1;
-	return rc_sourcefile(argv[1]);
+	return -1;
+
+	// if (argc < 2)
+	// 	return -1;
+	// return rc_sourcefile(argv[1]);
 }
 
 static int cmd_quit()

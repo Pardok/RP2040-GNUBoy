@@ -158,6 +158,9 @@ void sound_reset()
 
 void sound_mix()
 {
+	#ifdef PICO
+	return;
+	#endif
 	int s, l, r, f, n;
 
 	if (!RATE || cpu.snd < RATE) return;

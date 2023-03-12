@@ -16,13 +16,13 @@
 #include "rtc.h"
 #include "rc.h"
 #include "lcd.h"
-#include "inflate.h"
-#include "lib/xz/xz.h"
 #include "save.h"
 #include "sound.h"
 #include "sys.h"
 
-static byte *decompress(byte *data, int *len);
+extern const unsigned char rom_gb[];
+extern const unsigned int rom_gb_len;
+
 static byte *loadfile(FILE *f, int *len);
 
 static int mbc_table[256] =
@@ -103,43 +103,47 @@ static int memfill = -1, memrand = -1;
 
 static FILE* rom_loadfile(char *fn, byte** data, int *len) 
 {
-	FILE *f;
+	return NULL;
 
-	if (strcmp(fn, "-")) f = fopen(fn, "rb");
-	else f = stdin;
+	// FILE *f;
 
-	if(!f) return NULL;
+	// if (strcmp(fn, "-")) f = fopen(fn, "rb");
+	// else f = stdin;
+
+	// if(!f) return NULL;
 	
-	*data = loadfile(f, len);
-	*data = decompress(*data, len);
+	// *data = loadfile(f, len);
+	// *data = decompress(*data, len);
 
-	return f;
+	// return f;
 }
 
 int bootrom_load() 
 {
-	byte *data;
-	int len;
-	FILE *f;
+	// byte *data;
+	// int len;
+	// FILE *f;
 
 	REG(RI_BOOT) = 0xff;
 
-	if (!bootroms[hw.cgb] || !bootroms[hw.cgb][0]) 
-		return 0;
-
-	f = rom_loadfile(bootroms[hw.cgb], &data, &len);
-
-	if(!f) return 0;
-	
-	bootrom.bank = realloc(data, 16384);
-	memset(bootrom.bank[0]+len, 0xff, 16384-len);
-	memcpy(bootrom.bank[0]+0x100, rom.bank[0]+0x100, 0x100);
-
-	fclose(f);
-
-	REG(RI_BOOT) = 0xfe;
-
 	return 0;
+
+	// if (!bootroms[hw.cgb] || !bootroms[hw.cgb][0]) 
+	// 	return 0;
+
+	// f = rom_loadfile(bootroms[hw.cgb], &data, &len);
+
+	// if(!f) return 0;
+	
+	// bootrom.bank = realloc(data, 16384);
+	// memset(bootrom.bank[0]+len, 0xff, 16384-len);
+	// memcpy(bootrom.bank[0]+0x100, rom.bank[0]+0x100, 0x100);
+
+	// fclose(f);
+
+	// REG(RI_BOOT) = 0xfe;
+
+	// return 0;
 }
 
 static void initmem(void *mem, int size)
@@ -156,21 +160,21 @@ static void initmem(void *mem, int size)
 
 static byte *loadfile(FILE *f, int *len)
 {
-	int c, l = 0, p = 0;
-	byte *d = 0, buf[512];
+	// int c, l = 0, p = 0;
+	// byte *d = 0, buf[512];
 
-	for(;;)
-	{
-		c = fread(buf, 1, sizeof buf, f);
-		if (c <= 0) break;
-		l += c;
-		d = realloc(d, l);
-		if (!d) return 0;
-		memcpy(d+p, buf, c);
-		p += c;
-	}
-	*len = l;
-	return d;
+	// for(;;)
+	// {
+	// 	c = fread(buf, 1, sizeof buf, f);
+	// 	if (c <= 0) break;
+	// 	l += c;
+	// 	d = realloc(d, l);
+	// 	if (!d) return 0;
+	// 	memcpy(d+p, buf, c);
+	// 	p += c;
+	// }
+	// *len = l;
+	// return d;
 }
 
 static byte *inf_buf;
@@ -187,100 +191,30 @@ static void inflate_callback(byte b)
 	inf_buf[inf_pos++] = b;
 }
 
-static byte *gunzip(byte *data, int *len) {
-	long pos = 0;
-	inf_buf = 0;
-	inf_pos = inf_len = 0;
-	if (unzip(data, &pos, inflate_callback) < 0)
-		return data;
-	*len = inf_pos;
-	return inf_buf;
-}
-
 static void write_dec(byte *data, int len) {
 	int i;
 	for(i=0; i < len; i++)
 		inflate_callback(data[i]);
 }
 
-static int unxz(byte *data, int len) {
-	struct xz_buf b;
-	struct xz_dec *s;
-	enum xz_ret ret;
-	unsigned char out[4096];
-
-	/*
-	 * Support up to 64 MiB dictionary. The actually needed memory
-	 * is allocated once the headers have been parsed.
-	*/
-	s = xz_dec_init(XZ_DYNALLOC, 1 << 26);
-	if(!s) goto err;
-
-	b.in = data;
-	b.in_pos = 0;
-	b.in_size = len;
-	b.out = out;
-	b.out_pos = 0;
-	b.out_size = sizeof(out);
-
-	while (1) {
-		ret = xz_dec_run(s, &b);
-		if(b.out_pos == sizeof(out)) {
-			write_dec(out, sizeof(out));
-			b.out_pos = 0;
-		}
-
-		if(ret == XZ_OK) continue;
-
-		write_dec(out, b.out_pos);
-
-		if(ret == XZ_STREAM_END) {
-			xz_dec_end(s);
-			return 0;
-		}
-		goto err;
-	}
-
-	err:
-	xz_dec_end(s);
-	return -1;
-}
-
-static byte *do_unxz(byte *data, int *len) {
-	xz_crc32_init();
-	xz_crc64_init();
-	inf_buf = 0;
-	inf_pos = inf_len = 0;
-	if (unxz(data, *len) < 0)
-		return data;
-	*len = inf_pos;
-	return inf_buf;
-}
-
-static byte *decompress(byte *data, int *len)
-{
-	if (data[0] == 0x1f && data[1] == 0x8b)
-		return gunzip(data, len);
-	if(data[0] == 0xFD && !memcmp(data+1, "7zXZ", 4))
-		return do_unxz(data, len);
-	return data;
-}
-
 
 int rom_load()
 {
-	FILE *f;
-	byte c, *data, *header;
+	// FILE *f;
+	const byte *data;
+	byte c, *header;
 	int len = 0, rlen;
-	f = rom_loadfile(romfile, &data, &len);
+	// f = rom_loadfile(romfile, &data, &len);
+	// header = data;
+
+	// if (strcmp(romfile, "-")) f = fopen(romfile, "rb");
+	// else f = stdin;
+	// if (!f) die("cannot open rom file: %s\n", romfile);
+
+	// data = loadfile(f, &len);
+	data = rom_gb;
+	len = rom_gb_len;
 	header = data;
-
-	if (strcmp(romfile, "-")) f = fopen(romfile, "rb");
-	else f = stdin;
-	if (!f) die("cannot open rom file: %s\n", romfile);
-
-	data = loadfile(f, &len);
-	header = data = decompress(data, &len);
 	
 	memcpy(rom.name, header+0x0134, 16);
 	if (rom.name[14] & 0x80) rom.name[14] = 0;
@@ -298,8 +232,8 @@ int rom_load()
 	if (!mbc.ramsize) die("unknown SRAM size %02X\n", header[0x0149]);
 
 	rlen = 16384 * mbc.romsize;
-	rom.bank = realloc(data, rlen);
-	if (rlen > len) memset(rom.bank[0]+len, 0xff, rlen - len);
+	printf("rlen: %d\n", rlen);
+	rom.bank = rom_gb;
 	
 	ram.sbank = malloc(8192 * mbc.ramsize);
 
@@ -313,103 +247,107 @@ int rom_load()
 	hw.cgb = ((c == 0x80) || (c == 0xc0)) && !forcedmg;
 	hw.gba = (hw.cgb && gbamode);
 
-	if (strcmp(romfile, "-")) fclose(f);
+	// if (strcmp(romfile, "-")) fclose(f);
 
 	return 0;
 }
 
 int sram_load()
 {
-	FILE *f;
+	return -1;
 
-	if (!mbc.batt || !sramfile || !*sramfile) return -1;
+	// FILE *f;
 
-	/* Consider sram loaded at this point, even if file doesn't exist */
-	ram.loaded = 1;
+	// if (!mbc.batt || !sramfile || !*sramfile) return -1;
 
-	f = fopen(sramfile, "rb");
-	if (!f) return -1;
-	fread(ram.sbank, 8192, mbc.ramsize, f);
-	fclose(f);
+	// /* Consider sram loaded at this point, even if file doesn't exist */
+	// ram.loaded = 1;
+
+	// f = fopen(sramfile, "rb");
+	// if (!f) return -1;
+	// fread(ram.sbank, 8192, mbc.ramsize, f);
+	// fclose(f);
 	
-	return 0;
+	// return 0;
 }
 
 
 int sram_save()
 {
-	FILE *f;
+	return -1;
 
-	/* If we crash before we ever loaded sram, DO NOT SAVE! */
-	if (!mbc.batt || !sramfile || !ram.loaded || !mbc.ramsize)
-		return -1;
+	// FILE *f;
+
+	// /* If we crash before we ever loaded sram, DO NOT SAVE! */
+	// if (!mbc.batt || !sramfile || !ram.loaded || !mbc.ramsize)
+	// 	return -1;
 	
-	f = fopen(sramfile, "wb");
-	if (!f) return -1;
-	fwrite(ram.sbank, 8192, mbc.ramsize, f);
-	fclose(f);
+	// f = fopen(sramfile, "wb");
+	// if (!f) return -1;
+	// fwrite(ram.sbank, 8192, mbc.ramsize, f);
+	// fclose(f);
 	
-	return 0;
+	// return 0;
 }
 
 
 void state_save(int n)
 {
-	FILE *f;
-	char *name;
+	// FILE *f;
+	// char *name;
 
-	if (n < 0) n = saveslot;
-	if (n < 0) n = 0;
-	name = malloc(strlen(saveprefix) + 5);
-	sprintf(name, "%s.%03d", saveprefix, n);
+	// if (n < 0) n = saveslot;
+	// if (n < 0) n = 0;
+	// name = malloc(strlen(saveprefix) + 5);
+	// sprintf(name, "%s.%03d", saveprefix, n);
 
-	if ((f = fopen(name, "wb")))
-	{
-		savestate(f);
-		fclose(f);
-	}
-	free(name);
+	// if ((f = fopen(name, "wb")))
+	// {
+	// 	savestate(f);
+	// 	fclose(f);
+	// }
+	// free(name);
 }
 
 
 void state_load(int n)
 {
-	FILE *f;
-	char *name;
+	// FILE *f;
+	// char *name;
 
-	if (n < 0) n = saveslot;
-	if (n < 0) n = 0;
-	name = malloc(strlen(saveprefix) + 5);
-	sprintf(name, "%s.%03d", saveprefix, n);
+	// if (n < 0) n = saveslot;
+	// if (n < 0) n = 0;
+	// name = malloc(strlen(saveprefix) + 5);
+	// sprintf(name, "%s.%03d", saveprefix, n);
 
-	if ((f = fopen(name, "rb")))
-	{
-		loadstate(f);
-		fclose(f);
-		vram_dirty();
-		pal_dirty();
-		sound_dirty();
-		mem_updatemap();
-	}
-	free(name);
+	// if ((f = fopen(name, "rb")))
+	// {
+	// 	loadstate(f);
+	// 	fclose(f);
+	// 	vram_dirty();
+	// 	pal_dirty();
+	// 	sound_dirty();
+	// 	mem_updatemap();
+	// }
+	// free(name);
 }
 
 void rtc_save()
 {
-	FILE *f;
-	if (!rtc.batt) return;
-	if (!(f = fopen(rtcfile, "wb"))) return;
-	rtc_save_internal(f);
-	fclose(f);
+	// FILE *f;
+	// if (!rtc.batt) return;
+	// if (!(f = fopen(rtcfile, "wb"))) return;
+	// rtc_save_internal(f);
+	// fclose(f);
 }
 
 void rtc_load()
 {
-	FILE *f;
-	if (!rtc.batt) return;
-	if (!(f = fopen(rtcfile, "r"))) return;
-	rtc_load_internal(f);
-	fclose(f);
+	// FILE *f;
+	// if (!rtc.batt) return;
+	// if (!(f = fopen(rtcfile, "r"))) return;
+	// rtc_load_internal(f);
+	// fclose(f);
 }
 
 
@@ -452,40 +390,41 @@ static void cleanup()
 	/* IDEA - if error, write emergency savestate..? */
 }
 
-void loader_init(char *s)
+void loader_init()
 {
 	char *name, *p;
 
 	sys_checkdir(savedir, 1); /* needs to be writable */
 
-	romfile = s;
 	rom_load();
 	bootrom_load();
 	vid_settitle(rom.name);
-	if (savename && *savename)
-	{
-		if (savename[0] == '-' && savename[1] == 0)
-			name = ldup(rom.name);
-		else name = strdup(savename);
-	}
-	else if (romfile && *base(romfile) && strcmp(romfile, "-"))
-	{
-		name = strdup(base(romfile));
-		p = strchr(name, '.');
-		if (p) *p = 0;
-	}
-	else name = ldup(rom.name);
+	// if (savename && *savename)
+	// {
+	// 	if (savename[0] == '-' && savename[1] == 0)
+	// 		name = ldup(rom.name);
+	// 	else name = strdup(savename);
+	// }
+	// if (romfile && *base(romfile) && strcmp(romfile, "-"))
+	// {
+	// 	name = strdup(base(romfile));
+	// 	p = strchr(name, '.');
+	// 	if (p) *p = 0;
+	// }
+	// else name = ldup(rom.name);
+
+	name = "game";
 	
-	saveprefix = malloc(strlen(savedir) + strlen(name) + 2);
-	sprintf(saveprefix, "%s/%s", savedir, name);
+	// saveprefix = malloc(strlen(savedir) + strlen(name) + 2);
+	// sprintf(saveprefix, "%s/%s", savedir, name);
 
-	sramfile = malloc(strlen(saveprefix) + 5);
-	strcpy(sramfile, saveprefix);
-	strcat(sramfile, ".sav");
+	// sramfile = malloc(strlen(saveprefix) + 5);
+	// strcpy(sramfile, saveprefix);
+	// strcat(sramfile, ".sav");
 
-	rtcfile = malloc(strlen(saveprefix) + 5);
-	strcpy(rtcfile, saveprefix);
-	strcat(rtcfile, ".rtc");
+	// rtcfile = malloc(strlen(saveprefix) + 5);
+	// strcpy(rtcfile, saveprefix);
+	// strcat(rtcfile, ".rtc");
 	
 	sram_load();
 	rtc_load();

@@ -86,12 +86,14 @@ void emu_run()
 		vid_end();
 		rtc_tick();
 		sound_mix();
+		#ifndef PICO
 		if (!pcm_submit())
 		{
 			delay = framelen - sys_elapsed(timer);
 			sys_sleep(delay);
 			sys_elapsed(timer);
 		}
+		#endif
 		doevents();
 		vid_begin();
 		if (framecount) { if (!--framecount) die("finished\n"); }

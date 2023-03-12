@@ -22,7 +22,14 @@ void pcm_close();
 void pcm_pause();
 void pcm_resume();
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void ev_poll();
+#ifdef __cplusplus
+}
+#endif
+
 int confirm_exit();
 
 void sys_checkdir(char *path, int wr);

@@ -3,18 +3,18 @@
 
 #include "rc.h"
 
-extern rcvar_t rcfile_exports[], emu_exports[], loader_exports[],
-	lcd_exports[], rtc_exports[], debug_exports[], sound_exports[], pcm_exports[], vid_exports[], joy_exports[];
+extern rcvar_t emu_exports[], loader_exports[],
+	lcd_exports[], rtc_exports[], sound_exports[], pcm_exports[], vid_exports[], joy_exports[];
 
 
 rcvar_t *sources[] =
 {
-	rcfile_exports,
+	// rcfile_exports,
 	emu_exports,
 	loader_exports,
 	lcd_exports,
 	rtc_exports,
-	debug_exports,
+	// debug_exports,
 	sound_exports,
 	pcm_exports,
 	vid_exports,

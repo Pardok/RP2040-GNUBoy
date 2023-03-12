@@ -14,7 +14,7 @@
 
 struct cpu cpu;
 
-
+#define NO_DEBUG
 
 
 #define ZFLAG(n) ( (n) ? 0 : FZ )
@@ -347,7 +347,9 @@ int cpu_idle(int max)
 	return cnt;
 }
 
+#ifndef NO_DEBUG
 extern int debug_trace;
+#endif
 
 int cpu_emulate(int cycles)
 {
@@ -390,7 +392,9 @@ next:
 	}
 	IME = IMA;
 	
+#ifndef NO_DEBUG
 	if (debug_trace) debug_disassemble(PC, 1);
+#endif
 	op = FETCH;
 	clen = cycles_table[op];
 

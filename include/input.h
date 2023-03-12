@@ -137,7 +137,16 @@ typedef struct event_s
 #define EV_REPEAT 3
 #define EV_MOUSE 4
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int ev_postevent(event_t *ev);
+
+#ifdef __cplusplus
+}
+#endif
+
 int ev_getevent(event_t *ev);
 
 

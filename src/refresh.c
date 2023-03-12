@@ -10,11 +10,13 @@
 #endif
 
 
+#ifndef PICO
 #ifndef ASM_REFRESH_1
 void refresh_1(byte *dest, byte *src, byte *pal, int cnt)
 {
 	while(cnt--) *(dest++) = pal[*(src++)];
 }
+#endif
 #endif
 
 #ifndef ASM_REFRESH_2
@@ -24,6 +26,7 @@ void refresh_2(un16 *dest, byte *src, un16 *pal, int cnt)
 }
 #endif
 
+#ifndef PICO
 #ifndef ASM_REFRESH_3
 void refresh_3(byte *dest, byte *src, un32 *pal, int cnt)
 {
@@ -174,4 +177,4 @@ void refresh_4_4x(un32 *dest, byte *src, un32 *pal, int cnt)
 	}
 }
 #endif
-
+#endif
