@@ -142,9 +142,6 @@ namespace st7789 {
       auto count = (even_line and not leakage) ? win_w / 3 * 2 : win_w / 3;
       
       int shift = (cur_scanline - 1) * (win_w / 3 * 2);
-      if ((cur_scanline < 3) or (cur_scanline > 142)) {
-        printf("scanline %d, count %d, shift %d, even %d\n", cur_scanline, count, shift, even_line);
-      }
 
       dma_channel_set_trans_count(dma_channel, count, false);
       dma_channel_set_read_addr(dma_channel, frame_buffer + shift, true);
