@@ -1,5 +1,7 @@
 # GNUBoy SDL2 Port
 
+Port of GNUBoy for RP2040 (incl. Raspberry Pi Pico). Description is TBD.
+
 # Overview 
 
 ![GNU/Linux](https://github.com/AlexOberhofer/SDL2-GNUBoy/workflows/GNU/Linux/badge.svg)<br>
