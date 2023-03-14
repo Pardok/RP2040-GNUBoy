@@ -66,7 +66,7 @@ The emulator currently fails only one CPU instruction via blarggs test rom (Wind
 
 RP2040 currently is in active development. See the master branch for bleeding edge RP2040-GNUBoy.
 
-## Whats been done
+## Done
 
 Added support for RP2040, including, but not limited to:
 - Video output, including 1.5x scaler
