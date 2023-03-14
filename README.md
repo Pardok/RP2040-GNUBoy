@@ -4,11 +4,6 @@ Port of GNUBoy for RP2040 (incl. Raspberry Pi Pico). Description is TBD.
 
 # Overview 
 
-![GNU/Linux](https://github.com/AlexOberhofer/SDL2-GNUBoy/workflows/GNU/Linux/badge.svg)<br>
-![OSX](https://github.com/AlexOberhofer/SDL2-GNUBoy/workflows/OSX/badge.svg)<br>
-![Windows MinGW-w64](https://github.com/AlexOberhofer/SDL2-GNUBoy/workflows/Windows%20MinGW-w64/badge.svg)<br>
-
-
 A Multiplatform Gameboy Emulator. Free Software.
 
 GNUBoy is a cool, old piece of software. This fork focuses on a multiplatform SDL 2 port. Hopefully this codebase can be helpful to someone in the future

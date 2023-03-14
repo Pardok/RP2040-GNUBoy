@@ -1,0 +1,28 @@
+name: GNU/Linux
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: lukka/get-cmake@latest
+    - name: Install the Toolchain
+      run: |
+        sudo apt update
+        sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential 
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DPICO_SDK_FETCH_FROM_GIT=1
+        make
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: rp2040-build
+        path: build/rp2040gnuboy.uf2
+
