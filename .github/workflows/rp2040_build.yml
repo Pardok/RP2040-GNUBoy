@@ -10,8 +10,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: lukka/get-cmake@latest
-    - name: run-cmake
-      uses: lukka/run-cmake@v10
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
       with:
