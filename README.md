@@ -97,7 +97,7 @@ Added support for RP2040, including, but not limited to:
 
 - Add filesystem to support saves and savestates
 - Fix issues if games won't load even with save support
-- Some simple UI to save/load, change scale, show FPS, etc.
+- Some simple UI to save/load, change scale, brightness, show FPS, etc.
 - Make project buildable for all systems (Linux, Windows, Mac) using CMake.
 
 Maybe:
