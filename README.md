@@ -20,7 +20,7 @@ Minimal requirements for you RP2040 device:
 Fork or contribute! Based on GNUBoy and licensed under GNU GPLv2
 
 <div align="center">
-    <img alt="Blue" src="https://github.com/AlexOberhofer/SDL2-GNUBoy/raw/master/docs/img/blue.PNG">
+    <img alt="Blue" src="./docs/img/Petris_on_Pico.jpg">
 </div>
 
 # Releases
