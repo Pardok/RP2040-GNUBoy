@@ -365,11 +365,12 @@ The GNUBoy core is extremely fast and portable. Porting documentation can be fou
 ## Developers
 
 RP2040 Port: Stanislav Blindovskii
+
 Original SDL2-GNUBoy developer: Alex Oberhofer
 
 ## Acknowledgements
 
-Petris GBC game (included as assets/rom.c): https://github.com/bbbbbr/Petris
+Petris GBC game (included as assets/rom.c): https://github.com/bbbbbr/Petris \
 Also it could be seen in the releases!
 
 See CREDITS for full list of contributors.
