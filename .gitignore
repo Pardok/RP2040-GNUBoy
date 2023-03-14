@@ -6,6 +6,10 @@ Makefile
 *.gb
 sdl2gnuboy
 config.*
+!config.h
+!config.hpp
+!config.c
+!config.cpp
 *.gbc
 *.exe
 *.dll
