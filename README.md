@@ -62,25 +62,6 @@ The emulator currently fails only one CPU instruction via blarggs test rom (Wind
     <img src="https://github.com/AlexOberhofer/SDL2-GNUBoy/raw/master/docs/img/blargg.PNG">
 </div>
 
-## RP2040-GNUBoy v1.2.1
-
-Improvements for v1.2.1: 
-
-- Now compiles for Apple M1 chip.
-- SDL2 audio bugfixes
-- Better controller support + rumble (v1.2.0)
-
-<div align="center">
-    Pokemon Pinball (Now with rumble) <br>
-    <img alt="Pinball" src="https://github.com/AlexOberhofer/SDL2-GNUBoy/raw/master/docs/img/pinball.gif">
-</div>
-
-
-SDL2GNUBoy has been compiled and tested on the following platforms:
-
-- Mac (ARM)
-- RP2040
-
 # Status
 
 RP2040 currently is in active development. See the master branch for bleeding edge RP2040-GNUBoy.
