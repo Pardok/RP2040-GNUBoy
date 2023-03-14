@@ -1,0 +1,20 @@
+name: GNU/Linux
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: lukka/get-cmake@latest
+    - name: run-cmake
+      uses: lukka/run-cmake@v10
+    - name: Upload a Build Artifact
+    - uses: actions/upload-artifact@v3
+      with:
+        name: rp2040-build
+        path: build/rp2040gnuboy.uf2
+
