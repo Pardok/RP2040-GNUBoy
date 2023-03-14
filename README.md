@@ -159,11 +159,11 @@ Linux is the most straightforward way to build RP2040-GNUBoy
    ```sh
    sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
    ```
-1. Set up Pico SDK \
-    * Either by cloning the SDK locally:\
-        Set `PICO_SDK_PATH` to the SDK location in your environment, or pass it (`-DPICO_SDK_PATH=`) to cmake later.
-    * Or with automatic download from GitHub:\
-        Pass `-DPICO_SDK_FETCH_FROM_GIT=on` to cmake later.
+1. Set up Pico SDK
+    - Either by cloning the SDK locally:
+        - Set `PICO_SDK_PATH` to the SDK location in your environment, or pass it (`-DPICO_SDK_PATH=`) to cmake later.
+    - Or with automatic download from GitHub:
+        - Pass `-DPICO_SDK_FETCH_FROM_GIT=on` to cmake later.
 
 1. Setup a CMake build directory.
       For example, if not using an IDE:
