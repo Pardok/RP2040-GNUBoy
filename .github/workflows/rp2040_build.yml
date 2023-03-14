@@ -13,7 +13,7 @@ jobs:
     - name: run-cmake
       uses: lukka/run-cmake@v10
     - name: Upload a Build Artifact
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
         name: rp2040-build
         path: build/rp2040gnuboy.uf2
