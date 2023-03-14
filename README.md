@@ -1,13 +1,21 @@
 # GNUBoy SDL2 Port
 
-Port of GNUBoy for RP2040 (incl. Raspberry Pi Pico). Description is TBD.
+Port of GNUBoy for RP2040 (incl. Raspberry Pi Pico). It was developed for [Waveshare 1.3inch LCD](https://www.waveshare.com/pico-lcd-1.3.htm),
+but can be ported to any device built around Pi Pico (or just RP2040 microcontroller). [PicoSystem](https://github.com/pimoroni/picosystem) for example!
 
 # Overview 
 
-A Multiplatform Gameboy Emulator. Free Software.
+A Multiplatform Game Boy (Color) Emulator. Free Software.
 
 GNUBoy is a cool, old piece of software. This fork focuses on a multiplatform SDL 2 port. Hopefully this codebase can be helpful to someone in the future
-or someone interested in learning about C, SDL, or emulator development.
+or someone interested in learning about C, SDL, microcontrollers or emulator development.
+
+Minimal requirements for you RP2040 device:
+- Less then 500KB of flash for small roms, like [Petris](https://github.com/bbbbbr/Petris), which provided with the code.
+- 160x144 screen, supports x1.5 scaling, so fits "perfectly"* on 240x240 screens as 240x216.
+- 8 buttons – 4 for D-pad, A, B Start and Select.
+
+*_Non-integer scaling is always not the best way to display retro games, you can read [here](https://emulation.gametechwiki.com/index.php/Scaling) why._
 
 Fork or contribute! Based on GNUBoy and licensed under GNU GPLv2
 
@@ -17,7 +25,7 @@ Fork or contribute! Based on GNUBoy and licensed under GNU GPLv2
 
 # Releases
 
-The latest packaged releases are available under the associated workflow. This currently is only for Windows. If you use Linux/MacOS BUILD IT!!!!
+The latest packaged releases are available under the associated workflow. This currently is only for RP2040. For now builds provided only for 
 
 Download Versioned Releases: (https://github.com/Pardok/RP2040-GNUBoy/releases)
 
@@ -25,45 +33,9 @@ Builds: (https://github.com/Pardok/RP2040-GNUBoy/actions) <br>
 *Note* Builds only provided for RP2040 for each commit <br>
 *Note* The stability of these builds may vary <br>
 
-SDL2 GNUboy pre-compiled binaries will be provided with each release. The source is also provided on the release page and the binaries can be built from the source or from this repository.
+RP2040-GNUboy pre-compiled binaries will be provided with each release. The source is also provided on the release page and the binaries can be built from the source or from this repository.
 
-For bleeding edge SDL2-GNUBoy - build the master branch. Some stable versions also have branches to build from if need be. Otherwise check the release tab for Windows binaries or build it "the unix way" for *nix / BSD / OSX / RP2040.
-
-v1.2.2
-- GameBoy and GameBoy Color Bios
-- SDL video bugfixes
-- Restored fullscreen toggle
-- Link cable emulation (*nix)
-
-v1.2.1
-- Audio Bugfixes (No more popping noise on startup)
-- Audio Interface updates
-- Optional confirmation window when closing emulator session
-
-v1.2.0
-
-Thanks to [Ryzee119](https://github.com/Ryzee119) for his contributions! 
-
-- Many SDL bug fixes
-- Fullscreen / RC file fixes
-- Key rebinding now works
-- Integer scaling (new integer_scale rc variable)
-- Joystick/Gamepad rewrite (new joy_deadzone rc variable)
-- Rumble Support (new joy_rumble_strength rc variable)
-
-v1.1.1
-- Joystick/Gamepad Support 
-- New GB classic pallette (Can be changed with rc file)
-- Renderer + Keyboard bugfixes
-
-v1.1.0
- - Builds for more platforms
- - CPU logic fixes
- - Packaging + install scripts
- - SDL2 hardware rendering + scaling
-
-v1.0
- - Supports Linux only
+For bleeding edge RP2040-GNUBoy - build the master branch. Some stable versions also have branches to build from if need be. Otherwise check the release tab for Windows binaries or build it "the unix way" for *nix / BSD / OSX / RP2040.
 
 # Screenshots
 
@@ -79,7 +51,7 @@ v1.0
 
 # Performance
 
-The emulation core of GNUBoy is mainly unmodified except for a number of bugfixes I have ported into this fork. 
+There's some hacks ported from [Super Go Play](https://github.com/mattkj/super-go-play/) implementation of [gnuboy](https://github.com/mattkj/super-go-play/tree/master/gnuboy-go/components/gnuboy). Mainly patpix removal to free up some RAM at the cost of CPU performance (which Pi Pico has plenty of).
 
 ## Accuracy
 
@@ -90,7 +62,7 @@ The emulator currently fails only one CPU instruction via blarggs test rom (Wind
     <img src="https://github.com/AlexOberhofer/SDL2-GNUBoy/raw/master/docs/img/blargg.PNG">
 </div>
 
-## SDL2GNUBoy v1.2.1
+## RP2040-GNUBoy v1.2.1
 
 Improvements for v1.2.1: 
 
@@ -106,45 +78,43 @@ Improvements for v1.2.1:
 
 SDL2GNUBoy has been compiled and tested on the following platforms:
 
-- Windows (x86/ARM)
-- Mac (x86/ARM)
-- Linux (x86/ARM)
-- WSL 
+- Mac (ARM)
+- RP2040
 
 # Status
 
-Version 1.2.2 is in development. See the master branch for bleeding edge SDL2-GNUBoy.
+RP2040 currently is in active development. See the master branch for bleeding edge RP2040-GNUBoy.
 
 ## Whats been done
 
-(At this point - this is only a subset of what actually has been done here... but below is a sample)
-
-- Multiplatform builds
-
-- SDL2 input implementation
-
-- SDL1.2 rendering ported to SDL2
-
-- SDL1.2 sound ported to SDL2 
+Added support for RP2040, including, but not limited to:
+- Video output, including 1.5x scaler
+- Inputs from GPIO
+- System-specific things
 
 
 ## Todo
 
-- Porting: Emscripten?
+- Add filesystem to support saves and savestates
+- Fix issues if games won't load even with save support
+- Some simple UI to save/load, change scale, show FPS, etc.
+- Make project buildable for all systems (Linux, Windows, Mac) using CMake.
 
-- Add handler for zip files (non-zlib)
+Maybe:
+- Audio support for directly connected speaker
+- Audio support for buzzer
+- Support for ILI9341 screens
+- Support for an SD-card (saves)
+
+Nice-to-haves:
+- Make screen layer (video.cpp) more abstract to make other screens support easier
+- Loading games from an SD-card (or flash if there's plenty of it)
+- Make it a module of the bigger system with UI
+- Some hacky rom trimming or compression
 
 # Configuring
 
-Sample configuration files are provided in the /rc/ directory of this repository.
-
-Setup configuration from sample (From repository root)
-
-```
-$ cp ./rc/gnuboy.rc.sample ./gnuboy.rc
-```
-
-Example commands and color pallettes are also available in the /rc/ directory.
+Currently configuration is not working, but with filesystem support this might change.
 
 # Configuring Boot ROM
 
@@ -158,117 +128,68 @@ The following bootrom files have been tested, but others may work.
  
 # Building
 
-Build scripts are provided for both native unix applications and for cross compiling via mingw-w64 gcc
+Currently only RP2040 builds available. 
 
-Build instructions are provided for both below:
+It is pretty straightforward process on any system if you've managed to build [pico-examples](https://github.com/raspberrypi/pico-examples) before. \
+I really recommend doing this first if you've never built something for the RP2040 from C/C++ sources.
 
-## Mac
+### "Pico has no game"
 
-See the "Linux section" except for a few differences. The Mac build uses Clang by default. Build has been tested on both Intel and M1 Macintoshes. 
-
-Installing SDL2:
-
+If you want to build any other game instead of Petris, you need to replace `assets/rom.c` with dump of `.gb`/`.gbc` rom file. This method was borrowed from [RP2040-GB](https://github.com/deltabeard/RP2040-GB). To dump file you need to run:
 ```
-$ brew install sdl2
+xxd -i rom.gb rom.c
 ```
-
-Building Mac Binar:y
-
+Then open it and replace the first line with:
 ```
-$ make osx
+const unsigned char rom_gb[] = {
 ```
- 
-
-## Linux 
-
-This project requires GCC and SDL2 to build for linux. A Makefile has been provided.
-
-Install SDL2 development libraries (Ubuntu):
-
+Also scroll down to the last line and replace everything but number with:
 ```
-$ apt-get install libsdl2-dev
+const unsigned int rom_gb_len = 
 ```
+Done! Your build will now include the rom of your selection. Also note that the Pi Pico comes with 2MB of flash memory by default. Given that the emulator itself has a non-zero size (but <500KB), you can't use any rom >1.5MB in size. Most roms are based on the physical flash size of their cartridges, so you need to look for 1MB roms. Also consider looking for US roms, which are smaller in size due to less language data. If you have a device with larger flash memory (like the PicoSystem which has 16MB!) you can use larger roms.
 
-Clone github repository: 
+## Actual building
 
-```
-$ git clone https://github.com/AlexOberhofer/SDL2-GNUBoy.git
-```
+### Linux
 
-Enter project directory:
+Linux is the most straightforward way to build RP2040-GNUBoy
 
-```
-$ cd sdl2-gnuboy
-```
+1. Install CMake (at least version 3.13), and GCC cross compiler
+   ```sh
+   sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+   ```
+1. Set up Pico SDK \
+    * Either by cloning the SDK locally:\
+        Set `PICO_SDK_PATH` to the SDK location in your environment, or pass it (`-DPICO_SDK_PATH=`) to cmake later.
+    * Or with automatic download from GitHub:\
+        Pass `-DPICO_SDK_FETCH_FROM_GIT=on` to cmake later.
 
-Build:
+1. Setup a CMake build directory.
+      For example, if not using an IDE:
+      ```sh
+      $ mkdir build
+      $ cd build
+      $ cmake ..
+      ```   
+   
+   When building for a board other than the Raspberry Pi Pico, you should pass `-DPICO_BOARD=board_name` to the `cmake` command above, e.g. `cmake -DPICO_BOARD=pico_w ..`
+   to configure the SDK and build options accordingly for that particular board.
 
-```
-$ make linux
-```
+   Doing so sets up various compiler defines (e.g. default pin numbers for UART and other hardware) and in certain 
+   cases also enables the use of additional libraries (e.g. wireless support when building for `PICO_BOARD=pico_w`) which cannot
+   be built without a board which provides the requisite functionality.
 
-Run:
+   For a list of boards defined in the SDK itself, look in [this directory](src/boards/include/boards) which has a 
+   header for each named board.
 
-```
-$ ./sdl2gnuboy ./rom
-```
+1. Make your target from the build directory you created.
+      ```sh
+      $ make
+      ```
 
-## Windows (Cross Compiler)
+1. You now have `rp2040gnuboy.elf` to load via a debugger, or `rp2040gnuboy.uf2` that can be installed and run on your Raspberry Pi Pico via drag and drop.
 
-SDL2 GNUboy can be cross compiled for Windows on Linux (or the Windows Linux Subsystem)
-
-This requires mingw64-w64-gcc and the mingw SDL2 libraries. 
-
-These can be installed via the AUR or the SDL website (Extract and place contents in /usr/x86_64-w64-mingw32)
-
-
-Install libraries (from AUR using yay)
-
-```
-$ yay mingw-w64-gcc
-```
-
-Install MinGW-w64-sdl2
-
-```
-$ yay mingw-w64-sdl2
-```
-
-Clone github repository: 
-
-```
-$ git clone https://github.com/AlexOberhofer/SDL2-GNUBoy.git
-```
-
-Enter project directory:
-
-```
-$ cd sdl2-gnuboy
-```
-
-Build:
-
-```
-$ make windows
-```
-
-Run  
-
-Windows: 
-
-  - Drag and drop rom over executable
-
-(Wine):
-
-```
-$ wine ./sdl2gnuboy.exe ./rom
-```
-
-Run (cmd):
-
-```
-$ ./sdl2gnuboy.exe ./rom
-```
 
 # Controls (Keyboard)
 
@@ -364,6 +285,8 @@ RP2040 Port: Stanislav Blindovskii
 Original SDL2-GNUBoy developer: Alex Oberhofer
 
 ## Acknowledgements
+
+[PicoSystem SDK](https://github.com/pimoroni/picosystem) and [32-blit SDK](https://github.com/32blit/32blit-sdk) that this port is heavily based on!
 
 Petris GBC game (included as assets/rom.c): https://github.com/bbbbbr/Petris \
 Also it could be seen in the releases!
