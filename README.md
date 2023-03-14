@@ -19,15 +19,15 @@ Fork or contribute! Based on GNUBoy and licensed under GNU GPLv2
 
 The latest packaged releases are available under the associated workflow. This currently is only for Windows. If you use Linux/MacOS BUILD IT!!!!
 
-Download Versioned Releases: (https://github.com/AlexOberhofer/SDL2-GNUBoy/releases)
+Download Versioned Releases: (https://github.com/Pardok/RP2040-GNUBoy/releases)
 
-Builds: (https://github.com/AlexOberhofer/SDL2-GNUBoy/actions) <br>
-*Note* Builds only provided for windows via mingw64 for each commit <br>
+Builds: (https://github.com/Pardok/RP2040-GNUBoy/actions) <br>
+*Note* Builds only provided for RP2040 for each commit <br>
 *Note* The stability of these builds may vary <br>
 
 SDL2 GNUboy pre-compiled binaries will be provided with each release. The source is also provided on the release page and the binaries can be built from the source or from this repository.
 
-For bleeding edge SDL2-GNUBoy - build the master branch. Some stable versions also have branches to build from if need be. Otherwise check the release tab for Windows binaries or build it "the unix way" for *nix / BSD / OSX.
+For bleeding edge SDL2-GNUBoy - build the master branch. Some stable versions also have branches to build from if need be. Otherwise check the release tab for Windows binaries or build it "the unix way" for *nix / BSD / OSX / RP2040.
 
 v1.2.2
 - GameBoy and GameBoy Color Bios
