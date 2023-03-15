@@ -11,9 +11,9 @@ GNUBoy is a cool, old piece of software. This fork focuses on a multiplatform SD
 or someone interested in learning about C, SDL, microcontrollers or emulator development.
 
 Minimal requirements for you RP2040 device:
-- Less then 500KB of flash for small roms, like [Petris](https://github.com/bbbbbr/Petris), which provided with the code.
+- Less then 500KB of flash for small roms, like [Petris](https://github.com/bbbbbr/Petris), which provided with the code. Size of flash = size of rom + ~500KB
 - 160x144 screen, supports x1.5 scaling, so fits "perfectly"* on 240x240 screens as 240x216.
-- 8 buttons – 4 for D-pad, A, B Start and Select.
+- 8 buttons – 4 for D-pad, A, B, Start and Select.
 
 *_Non-integer scaling is always not the best way to display retro games, you can read [here](https://emulation.gametechwiki.com/index.php/Scaling) why._
 
@@ -25,7 +25,7 @@ Fork or contribute! Based on GNUBoy and licensed under GNU GPLv2
 
 # Releases
 
-The latest packaged releases are available under the associated workflow. This currently is only for RP2040. For now builds provided only for 
+The latest packaged releases are available under the associated workflow. This currently is only for RP2040. For now builds are only provided for [Waveshare 1.3inch LCD](https://www.waveshare.com/pico-lcd-1.3.htm), but I aim to deliver to more platformss, especially when (if) I figure out rom-independent builds.
 
 Download Versioned Releases: (https://github.com/Pardok/RP2040-GNUBoy/releases)
 
@@ -55,6 +55,8 @@ There's some hacks ported from [Super Go Play](https://github.com/mattkj/super-g
 
 ## Accuracy
 
+RP2040 port haven't been tested, this part will be updated in the future.
+
 A number of cpu buxfixes were ported from [here](https://github.com/mattkj/super-go-play/tree/master/gnuboy-go/components/gnuboy)
 
 The emulator currently fails only one CPU instruction via blarggs test rom (Windows executable running in wine on Linux):
@@ -64,7 +66,7 @@ The emulator currently fails only one CPU instruction via blarggs test rom (Wind
 
 # Status
 
-RP2040 currently is in active development. See the master branch for bleeding edge RP2040-GNUBoy.
+RP2040-GNUBoy currently is in active development. See the master branch for bleeding edge RP2040-GNUBoy.
 
 ## Done
 
