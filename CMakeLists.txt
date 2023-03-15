@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.13)
 
 set(TARGET_NAME rp2040gnuboy)
 
-include(pico_sdk_import.cmake)
+get_filename_component(3RD_PARTY_DIR ./3rd-party ABSOLUTE)
+
+include(sys/pico/sdk_import.cmake)
 
 project(${TARGET_NAME} C CXX ASM)
 set(CMAKE_C_STANDARD 11)
