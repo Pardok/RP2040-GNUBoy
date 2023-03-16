@@ -238,7 +238,7 @@ int main()
 	sleep_ms(10);
 	set_sys_clock_khz(250000, 0);
 	#endif
-    stdio_init_all();
+    // stdio_init_all();
 #endif
 
 	vid_preinit();

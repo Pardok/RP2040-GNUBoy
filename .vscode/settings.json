@@ -34,6 +34,21 @@
         "new": "cpp",
         "*.tcc": "cpp",
         "cstdint": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "lfs.h": "c",
+        "array": "cpp",
+        "clocale": "cpp",
+        "cstring": "cpp",
+        "cwchar": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "functional": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "optional": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp"
     }
 }

@@ -24,7 +24,7 @@
             "name": "RP2040",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/Users/v.s.blindovskii/private-src/pico-sdk/**"
+                "../pico-sdk/**"
             ],
             "defines": [],
             "macFrameworkPath": [],
