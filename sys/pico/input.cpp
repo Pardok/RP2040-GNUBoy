@@ -15,7 +15,7 @@ rcvar_t joy_exports[] =
 	RCV_END
 };
 
-static bool left, right, up, down, a_btn, b_btn, x_btn, y_btn; 
+static bool left, right, up, down, a_btn, b_btn, x_btn, y_btn, ctrl_btn; 
 
 enum class ButtonIO {
 #ifdef PIMORONI_PICOSYSTEM
@@ -48,6 +48,8 @@ enum class ButtonIO {
   B = 17,
   X = 19,
   Y = 21,
+
+  CTRL = 3
 #endif
 };
 
@@ -83,6 +85,7 @@ void init_input() {
   init_button(ButtonIO::B);
   init_button(ButtonIO::X);
   init_button(ButtonIO::Y);
+  init_button(ButtonIO::CTRL);
 
   #define BUTTON_DECL(btn) bi_decl(bi_1pin_with_name(static_cast<int>(ButtonIO::btn), #btn" Button"));
   BUTTON_DECL(UP)
@@ -106,6 +109,8 @@ void update_input() {
   update_button(ButtonIO::B, K_JOY0, b_btn);
   update_button(ButtonIO::X, K_JOY2, x_btn);
   update_button(ButtonIO::Y, K_JOY3, y_btn);
+
+  update_button(ButtonIO::CTRL, K_CTRL, ctrl_btn);
 }
 
 extern "C" void ev_poll()

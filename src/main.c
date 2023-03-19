@@ -47,6 +47,7 @@ static char *defaultconfig[] =
 	"bind joy1 +a",
 	"bind joy2 +select",
 	"bind joy3 +start",
+	"bind ctrl reset",
 	"bind 1 \"set saveslot 1\"",
 	"bind 2 \"set saveslot 2\"",
 	"bind 3 \"set saveslot 3\"",
@@ -238,7 +239,6 @@ int main()
 	sleep_ms(10);
 	set_sys_clock_khz(250000, 0);
 	#endif
-    // stdio_init_all();
 #endif
 
 	vid_preinit();

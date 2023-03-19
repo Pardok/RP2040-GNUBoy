@@ -256,38 +256,49 @@ int sram_load()
 {
 	return -1;
 
-	// FILE *f;
+	FILE *f;
 
-	// if (!mbc.batt || !sramfile || !*sramfile) return -1;
+	if (!mbc.batt || !sramfile || !*sramfile) return -1;
 
-	// /* Consider sram loaded at this point, even if file doesn't exist */
-	// ram.loaded = 1;
-
-	// f = fopen(sramfile, "rb");
-	// if (!f) return -1;
-	// fread(ram.sbank, 8192, mbc.ramsize, f);
-	// fclose(f);
+	/* Consider sram loaded at this point, even if file doesn't exist */
+	ram.loaded = 1;
+	#ifdef PICO
+	f = open_file(sramfile, 1); // mode 1 = read
+	if (!f) return -1;
+	read_file(f, 0, 8192, ram.sbank);
+	close_file(f);
+	#else
+	f = fopen(sramfile, "rb");
+	if (!f) return -1;
+	fread(ram.sbank, 8192, mbc.ramsize, f);
+	fclose(f);
+	#endif
 	
-	// return 0;
+	return 0;
 }
 
 
 int sram_save()
 {
-	return -1;
+	FILE *f;
 
-	// FILE *f;
-
-	// /* If we crash before we ever loaded sram, DO NOT SAVE! */
-	// if (!mbc.batt || !sramfile || !ram.loaded || !mbc.ramsize)
-	// 	return -1;
+	/* If we crash before we ever loaded sram, DO NOT SAVE! */
+	if (!mbc.batt || !sramfile || !ram.loaded || !mbc.ramsize)
+		return -1;
 	
-	// f = fopen(sramfile, "wb");
-	// if (!f) return -1;
-	// fwrite(ram.sbank, 8192, mbc.ramsize, f);
-	// fclose(f);
+	#ifdef PICO
+	f = open_file(sramfile, 2); // mode 2 = write
+	if (!f) return -1;
+	write_file(f, 0, 8192, ram.sbank);
+	close_file(f);
+	#else
+	f = fopen(sramfile, "wb");
+	if (!f) return -1;
+	fwrite(ram.sbank, 8192, mbc.ramsize, f);
+	fclose(f);
+	#endif
 	
-	// return 0;
+	return 0;
 }
 
 
@@ -399,28 +410,26 @@ void loader_init()
 	rom_load();
 	bootrom_load();
 	vid_settitle(rom.name);
-	// if (savename && *savename)
-	// {
-	// 	if (savename[0] == '-' && savename[1] == 0)
-	// 		name = ldup(rom.name);
-	// 	else name = strdup(savename);
-	// }
-	// if (romfile && *base(romfile) && strcmp(romfile, "-"))
-	// {
-	// 	name = strdup(base(romfile));
-	// 	p = strchr(name, '.');
-	// 	if (p) *p = 0;
-	// }
-	// else name = ldup(rom.name);
-
-	name = "game";
+	if (savename && *savename)
+	{
+		if (savename[0] == '-' && savename[1] == 0)
+			name = ldup(rom.name);
+		else name = strdup(savename);
+	}
+	if (romfile && *base(romfile) && strcmp(romfile, "-"))
+	{
+		name = strdup(base(romfile));
+		p = strchr(name, '.');
+		if (p) *p = 0;
+	}
+	else name = ldup(rom.name);
 	
-	// saveprefix = malloc(strlen(savedir) + strlen(name) + 2);
-	// sprintf(saveprefix, "%s/%s", savedir, name);
+	saveprefix = malloc(strlen(savedir) + strlen(name) + 2);
+	sprintf(saveprefix, "%s/%s", savedir, name);
 
-	// sramfile = malloc(strlen(saveprefix) + 5);
-	// strcpy(sramfile, saveprefix);
-	// strcat(sramfile, ".sav");
+	sramfile = malloc(strlen(saveprefix) + 5);
+	strcpy(sramfile, saveprefix);
+	strcat(sramfile, ".sav");
 
 	// rtcfile = malloc(strlen(saveprefix) + 5);
 	// strcpy(rtcfile, saveprefix);

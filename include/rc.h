@@ -39,6 +39,10 @@ typedef struct rccmd_s
 #define RCC(n,f) { (n), (f) }
 #define RCC_END { 0, 0 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void rc_export(rcvar_t *v);
 void rc_exportvars(rcvar_t *vars);
 
@@ -57,6 +61,10 @@ char *rc_getstr(char *name);
 
 int rc_command(char *line);
 int rc_sourcefile(char *filename);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -85,7 +85,7 @@ void close_open_files() {
     close_file(open_files.back());
 }
 
-void *open_file(const std::string &file, int mode) {
+extern "C" void *open_file(const std::string &file, int mode) {
   FIL *f = new FIL();
 
   BYTE ff_mode = 0;
@@ -110,7 +110,7 @@ void *open_file(const std::string &file, int mode) {
   return nullptr;
 }
 
-int32_t read_file(void *fh, uint32_t offset, uint32_t length, char *buffer) {
+extern "C" int32_t read_file(void *fh, uint32_t offset, uint32_t length, char *buffer) {
   FRESULT r = FR_OK;
   FIL *f = (FIL *)fh;
 
@@ -128,7 +128,7 @@ int32_t read_file(void *fh, uint32_t offset, uint32_t length, char *buffer) {
   return -1;
 }
 
-int32_t write_file(void *fh, uint32_t offset, uint32_t length, const char *buffer) {
+extern "C" int32_t write_file(void *fh, uint32_t offset, uint32_t length, const char *buffer) {
   FRESULT r = FR_OK;
   FIL *f = (FIL *)fh;
 
@@ -146,7 +146,7 @@ int32_t write_file(void *fh, uint32_t offset, uint32_t length, const char *buffe
   return -1;
 }
 
-int32_t close_file(void *fh) {
+extern "C" int32_t close_file(void *fh) {
   FRESULT r;
 
   r = f_close((FIL *)fh);
@@ -162,7 +162,7 @@ int32_t close_file(void *fh) {
   return r == FR_OK ? 0 : -1;
 }
 
-uint32_t get_file_length(void *fh) {
+extern "C" uint32_t get_file_length(void *fh) {
   return f_size((FIL *)fh);
 }
 

@@ -16,7 +16,7 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
         )
 
-set(PLATFORM_IMPL sys/pico/video.cpp sys/pico/input.cpp sys/pico/rp2040.c sys/dummy/nosound.c sys/dummy/io.c)
+set(PLATFORM_IMPL sys/pico/video.cpp sys/pico/input.cpp sys/pico/rp2040.cpp sys/dummy/nosound.c sys/dummy/io.c)
 
 # #If Linux / UNIX / BSD / APPLE / etc...
 # if(UNIX OR APPLE) 

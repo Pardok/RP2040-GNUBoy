@@ -94,6 +94,7 @@ void emu_run()
 			sys_elapsed(timer);
 		}
 		#endif
+    	update_usb();
 		doevents();
 		vid_begin();
 		if (framecount) { if (!--framecount) die("finished\n"); }
