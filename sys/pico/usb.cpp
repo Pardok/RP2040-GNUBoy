@@ -129,7 +129,7 @@ void init_usb() {
   tusb_init();
 }
 
-void update_usb() {
+extern "C" void update_usb() {
   tud_task();
 
   if(!tud_ready()) { // tud_cdc_connected returns false with STM USB host

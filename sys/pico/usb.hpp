@@ -3,7 +3,13 @@
 #include <cstdint>
 
 void init_usb();
+#ifdef __cplusplus
+extern "C" {
+#endif
 void update_usb();
+#ifdef __cplusplus
+}
+#endif
 
 void usb_debug(const char *message);
 
